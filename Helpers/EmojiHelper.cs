@@ -9,17 +9,16 @@ namespace Coaction.KickAssCardBot.Helpers
         public static MtgEmoji GetSavedDiscordEmojis()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = $"{assembly.GetName().Name}.MtgEmojiIds.json";
-
-            Stream? stream = assembly.GetManifestResourceStream(resourceName);
+            var resourceName = $"{assembly.GetName().Name}.Resources.MtgEmojiIds.json";
+            var stream = assembly.GetManifestResourceStream(resourceName);
 
             if (stream == null)
             {
-                return null;
+                throw new Exception("Unable to obtain MtgEmojiIds.json as an embedded resource.");
             }
 
-            using StreamReader reader = new StreamReader(stream);
-            string jsonFile = reader.ReadToEnd();
+            using var reader = new StreamReader(stream);
+            var jsonFile = reader.ReadToEnd();
 
             return JsonConvert.DeserializeObject<MtgEmoji>(jsonFile);
         }
