@@ -1,25 +1,27 @@
-﻿using System.Reflection;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace Coaction.KickAssCardBot.Services;
 
 public class CommandHandlingService
 {
     private readonly CommandService _commands;
-    private readonly DiscordSocketClient _discord;
+    private readonly DiscordSocketClient _client;
     private readonly IServiceProvider _services;
+    private readonly ILogger<CommandHandlingService> _logger;
 
-    public CommandHandlingService(IServiceProvider services)
+    public CommandHandlingService(ILogger<CommandHandlingService> logger, CommandService commands, DiscordSocketClient client, IServiceProvider serviceProvider)
     {
-        _commands = services.GetRequiredService<CommandService>();
-        _discord = services.GetRequiredService<DiscordSocketClient>();
-        _services = services;
+        _logger = logger;
+        _commands = commands;
+        _services = serviceProvider;
+        _client = client;
 
         _commands.CommandExecuted += CommandExecutedAsync;
-        _discord.MessageReceived += MessageReceivedAsync;
+        _client.MessageReceived += MessageReceivedAsync;
     }
 
     public async Task InitializeAsync()
@@ -27,23 +29,25 @@ public class CommandHandlingService
         await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
     }
 
-    private async Task MessageReceivedAsync(SocketMessage rawMessage)
+    public async Task MessageReceivedAsync(SocketMessage rawMessage)
     {
-        if (rawMessage is not SocketUserMessage { Source: MessageSource.User } message)
-            return;
-        
-        var argPos = 0;
+        if (rawMessage is SocketUserMessage {Source: MessageSource.User} message)
+        {
+            var argPos = 0;
 
-        if (!message.HasStringPrefix(Environment.GetEnvironmentVariable("DISCORD_BOT_COMMAND_PREFIX") ?? "!", ref argPos)
-            || !message.HasMentionPrefix(_discord.CurrentUser, ref argPos))
-            return;
+            if (!message.HasStringPrefix(Environment.GetEnvironmentVariable("DISCORD_BOT_COMMAND_PREFIX") ?? "!", ref argPos)
+                || !message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            {
+                return;
+            }
 
-        var context = new SocketCommandContext(_discord, message);
+            var context = new SocketCommandContext(_client, message);
 
-        await _commands.ExecuteAsync(context, argPos, _services);
+            await _commands.ExecuteAsync(context, argPos, _services);
+        }
     }
 
-    private static async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+    public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
     {
         if (!command.IsSpecified)
             return;
@@ -52,5 +56,6 @@ public class CommandHandlingService
             return;
 
         await context.Channel.SendMessageAsync($"Command execution failed due to: {result}");
+        _logger.LogError($"Command execution failed due to: {result}");
     }
 }
