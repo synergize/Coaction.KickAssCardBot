@@ -35,7 +35,7 @@ namespace Coaction.KickAssCardBot
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
                     services.AddSingleton<ScryfallManagerService>();
-                    services.AddTransient<IMemoryCacheManager>();
+                    services.AddMemoryCache();
                 })
                 .ConfigureLogging(logging =>
                 {
