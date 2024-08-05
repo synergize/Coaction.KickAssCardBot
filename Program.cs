@@ -1,4 +1,7 @@
-﻿using Coaction.KickAssCardBot.Services;
+﻿using System.Runtime.Caching;
+using System.Runtime.Caching.Hosting;
+using Coaction.KickAssCardBot.Manager;
+using Coaction.KickAssCardBot.Services;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -31,6 +34,8 @@ namespace Coaction.KickAssCardBot
                     services.AddScoped<InteractionHandlingService>();
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
+                    services.AddSingleton<ScryfallManagerService>();
+                    services.AddTransient<IMemoryCacheManager>();
                 })
                 .ConfigureLogging(logging =>
                 {
