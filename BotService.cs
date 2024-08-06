@@ -16,11 +16,11 @@ public class BotService : IHostedService
     private readonly IConfiguration _configuration;
 
 
-    public BotService(ILogger<BotService> logger, IConfiguration configuration, CommandHandlingService commandHandlingService, InteractionHandlingService interactionHandlingService)
+    public BotService(ILogger<BotService> logger, IConfiguration configuration, DiscordSocketClient client, CommandHandlingService commandHandlingService, InteractionHandlingService interactionHandlingService)
     {
         _configuration = configuration;
         _logger = logger;
-        _client = new DiscordSocketClient();
+        _client = client;
         _commandHandlingService = commandHandlingService;
         _interactionHandlingService = interactionHandlingService;
     }
@@ -51,11 +51,14 @@ public class BotService : IHostedService
         _client.Log += LogAsync;
         _client.MessageReceived += _commandHandlingService.MessageReceivedAsync;
         _client.InteractionCreated += _interactionHandlingService.HandleInteractionAsync;
+        _client.SelectMenuExecuted += _interactionHandlingService.Client_SelectMenuExecuted;
+        _client.ButtonExecuted += _interactionHandlingService.Client_ButtonExecuted;
         _client.Ready += OnReady;
         await _commandHandlingService.InitializeAsync();
         await _interactionHandlingService.InitializeAsync();
 
-        var token = _configuration["DiscordToken"];
+        //var token = _configuration["DiscordToken"];
+        var token = @"OTA1NjY4NjgyNTYxMjQ1MjA2.GPPbXL.hWAFWxkdV8x1bG5A0R4XC0rcF3AQeJDlhP7Ams";
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
     }

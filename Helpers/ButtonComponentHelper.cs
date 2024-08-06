@@ -1,6 +1,4 @@
-﻿using Coaction.KickAssCardBot.Enums;
-using Coaction.KickAssCardBot.Helpers.Scryfall;
-using Coaction.KickAssCardBot.Models.Scryfall;
+﻿using Coaction.KickAssCardBot.Models.Scryfall;
 using Discord;
 using ScryfallDataModel = Coaction.KickAssCardBot.Models.Scryfall.ScryfallDataModel;
 

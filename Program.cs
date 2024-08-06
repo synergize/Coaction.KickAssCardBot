@@ -2,6 +2,7 @@
 using System.Runtime.Caching.Hosting;
 using Coaction.KickAssCardBot.Manager;
 using Coaction.KickAssCardBot.Services;
+using Discord;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -28,7 +29,12 @@ namespace Coaction.KickAssCardBot
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddSingleton<DiscordSocketClient>();
+                    services.AddSingleton<DiscordSocketClient>(x => new DiscordSocketClient(new DiscordSocketConfig
+                    {
+                        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
+                        LogLevel = LogSeverity.Info,
+                        MessageCacheSize = 100
+                    }));
                     services.AddHostedService<BotService>();
                     services.AddScoped<CommandHandlingService>();
                     services.AddScoped<InteractionHandlingService>();

@@ -40,7 +40,7 @@ namespace Coaction.KickAssCardBot.Manager
             _logger.LogInformation($"Pulling Scryfall Data For {cardName} via set {setName}");
             var cacheKey = $"cardData-{cardName}-{setName}";
             var cacheValue = _memoryCache.Get(cacheKey);
-            if (cacheValue == null && cacheValue is CardData data)
+            if (cacheValue is CardData data)
             {
                 return data;
             }
@@ -55,7 +55,7 @@ namespace Coaction.KickAssCardBot.Manager
         {
             var cacheKey = $"cardrules-{scryfallId}";
             var cacheValue = _memoryCache.Get(cacheKey);
-            if (cacheValue == null && cacheValue is ScryFallCardRulingsModel data)
+            if (cacheValue is ScryFallCardRulingsModel data)
             {
                 return data;
             }
@@ -79,7 +79,7 @@ namespace Coaction.KickAssCardBot.Manager
         {
             var cacheKey = $"carddata-{scryfallId}";
             var cacheValue = _memoryCache.Get(cacheKey);
-            if (cacheValue == null && cacheValue is CardData data)
+            if (cacheValue is CardData data)
             {
                 return data;
             }
@@ -156,7 +156,7 @@ namespace Coaction.KickAssCardBot.Manager
                 var url = string.Format(urlFromInitial);
                 var cacheKey = $"setdata-{url}";
                 var cacheValue = _memoryCache.Get(cacheKey);
-                if (cacheValue == null && cacheValue is ScryfallPrints data)
+                if (cacheValue is ScryfallPrints data)
                 {
                     return data;
                 }

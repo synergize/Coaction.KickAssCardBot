@@ -20,7 +20,7 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
         public async Task CardLookup(string cardName)
         {
             var cardData = await _scryfallManager.PullScryfallData(cardName);
-            var embedBuilder = await cardData?.GetCardDataAsEmbed();
+            var embedBuilder = cardData?.GetCardDataAsEmbed();
             var scryFallSetData = await _scryfallManager.PullScryfallSetData(cardData?.PrintsSearchUri);
             var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardData, selectItems: scryFallSetData?.BuildPrintingSelectMenu());
 
@@ -48,7 +48,7 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
         [Command("random")]
         public async Task MTGRandomCards(bool isCommander = true)
         {
-            var embed = await MtgCardOutputManager.CardOutput(await _scryfallManager.PullScryFallRandomCard(isCommander));
+            var embed = MtgCardOutputManager.CardOutput(await _scryfallManager.PullScryFallRandomCard(isCommander));
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
     }

@@ -14,7 +14,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
         private static readonly Color SuccessfulColor = Color.DarkGreen;
         private const int FailedColor = 16580608;
 
-        public static async Task<EmbedBuilder> CardOutput(ScryfallDataModel.CardData pulledCard)
+        public static EmbedBuilder CardOutput(ScryfallDataModel.CardData pulledCard)
         {
             Logger.Log.Info($"Successfully acquired {pulledCard.Name}. Generating output embed.");
             var card = new EmbedBuilder();

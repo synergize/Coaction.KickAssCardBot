@@ -7,9 +7,9 @@ namespace Coaction.KickAssCardBot.Extensions
 {
     public static class CardDataExtensions
     {
-        public static async Task<EmbedBuilder> GetCardDataAsEmbed(this ScryfallDataModel.CardData cardInfo)
+        public static EmbedBuilder GetCardDataAsEmbed(this ScryfallDataModel.CardData cardInfo)
         {
-            return await MtgCardOutputManager.CardOutput(cardInfo);
+            return MtgCardOutputManager.CardOutput(cardInfo);
         }
 
         /// <summary>
