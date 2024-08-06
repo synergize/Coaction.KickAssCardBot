@@ -7,6 +7,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using Discord;
 
 namespace Coaction.KickAssCardBot.Services
 {
@@ -18,16 +19,18 @@ namespace Coaction.KickAssCardBot.Services
         private readonly ILogger<InteractionHandlingService> _logger;
         private readonly ScryfallManagerService _scryfallManagerService;
         private readonly MtgCardOutputManager _mtgCardOutputManager;
+        private readonly WizardsEventLocatorManager _wizardsEventLocatorManager;
 
 
         public InteractionHandlingService(ILogger<InteractionHandlingService> logger, DiscordSocketClient client, InteractionService interactionService,
-            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager)
+            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager, WizardsEventLocatorManager wizardsEventLocatorManager)
         {
             _client = client;
             _interactionService = interactionService;
             _serviceProvider = serviceProvider;
             _scryfallManagerService = scryfallManagerService;
             _mtgCardOutputManager = mtgCardOutputManager;
+            _wizardsEventLocatorManager = wizardsEventLocatorManager;
             _logger = logger;
 
             _client.Ready += ClientOnReadyAsync;
@@ -96,43 +99,43 @@ namespace Coaction.KickAssCardBot.Services
                 }
             }
 
-            //if (arg.Data.CustomId.Contains($"magicevent-"))
-            //{
-            //    try
-            //    {
-            //        var eventId = arg.Data.Values.First().Replace($"magicevent-", "");
-            //        var magicEvent = await WizardsEventLocatorManager.GetMagicEvent(eventId);
-            //        if (magicEvent != null)
-            //        {
-            //            var embed = new EmbedBuilder
-            //            {
-            //                Title = magicEvent.Name,
-            //                Description = $"{magicEvent.Description.Replace("\n", "")} \n ```{magicEvent.Store.PostalAddress.Replace("\n", " ")}```",
-            //                Url = $"https://locator.wizards.com/events/{eventId}",
-            //                Color = Color.DarkGreen,
-            //                Timestamp = magicEvent.StartDatetime,
-            //                Footer = new EmbedFooterBuilder
-            //                {
-            //                    Text = "Event Date"
-            //                }
-            //            };
+            if (arg.Data.CustomId.Contains($"magicevent-"))
+            {
+                try
+                {
+                    var eventId = arg.Data.Values.First().Replace($"magicevent-", "");
+                    var magicEvent = await _wizardsEventLocatorManager.GetMagicEvent(eventId);
+                    if (magicEvent != null)
+                    {
+                        var embed = new EmbedBuilder
+                        {
+                            Title = magicEvent.Name,
+                            Description = $"{magicEvent.Description.Replace("\n", "")} \n ```{magicEvent.Store.PostalAddress.Replace("\n", " ")}```",
+                            Url = $"https://locator.wizards.com/events/{eventId}",
+                            Color = Color.DarkGreen,
+                            Timestamp = magicEvent.StartDatetime,
+                            Footer = new EmbedFooterBuilder
+                            {
+                                Text = "Event Date"
+                            }
+                        };
 
-            //            var formattedFormat = magicEvent.Format.ToLower();
-            //            embed.AddField($"{nameof(magicEvent.Distance)}", $"{Math.Round(magicEvent.Distance.ConvertToMiles(), 2)} Miles", true);
-            //            embed.AddField($"{nameof(magicEvent.Format)}", $"{char.ToUpper(formattedFormat[0])}{formattedFormat[1..]}", true);
-            //            embed.AddField($"{nameof(magicEvent.Store.Name)}", magicEvent.Store.Name, true);
-            //            embed.AddField($"{nameof(magicEvent.Currency)}", $"${magicEvent.Cost * 0.01} {magicEvent.Currency}", true);
-            //            embed.AddField($"{nameof(magicEvent.Store.PhoneNumber)}", magicEvent.Store.PhoneNumber, true);
-            //            embed.AddField($"{nameof(magicEvent.Store.Website)}", magicEvent.Store.Website, true);
-            //            await arg.RespondAsync(embed: embed.Build(), ephemeral: true);
-            //        }
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        Logger.Log.Error(e, $"Failed to find event details from selection menu due to {e.Message}");
-            //        throw;
-            //    }
-            //}
+                        var formattedFormat = magicEvent.Format.ToLower();
+                        embed.AddField($"{nameof(magicEvent.Distance)}", $"{Math.Round(magicEvent.Distance.ConvertToMiles(), 2)} Miles", true);
+                        embed.AddField($"{nameof(magicEvent.Format)}", $"{char.ToUpper(formattedFormat[0])}{formattedFormat[1..]}", true);
+                        embed.AddField($"{nameof(magicEvent.Store.Name)}", magicEvent.Store.Name, true);
+                        embed.AddField($"{nameof(magicEvent.Currency)}", $"${magicEvent.Cost * 0.01} {magicEvent.Currency}", true);
+                        embed.AddField($"{nameof(magicEvent.Store.PhoneNumber)}", magicEvent.Store.PhoneNumber, true);
+                        embed.AddField($"{nameof(magicEvent.Store.Website)}", magicEvent.Store.Website, true);
+                        await arg.RespondAsync(embed: embed.Build(), ephemeral: true);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Failed to find event details from selection menu due to {e.Message}");
+                    throw;
+                }
+            }
         }
 
         public async Task<Task> Client_ButtonExecuted(SocketMessageComponent component)

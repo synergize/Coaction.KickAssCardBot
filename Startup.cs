@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace Coaction.KickAssCardBot
 {
@@ -25,6 +26,7 @@ namespace Coaction.KickAssCardBot
                 .ConfigureAppConfiguration((context, config) =>
                 {
                     config.AddEnvironmentVariables();
+                    config.AddUserSecrets(Assembly.GetEntryAssembly());
                 })
                 .ConfigureServices((context, services) =>
                 {
@@ -41,6 +43,8 @@ namespace Coaction.KickAssCardBot
                     services.AddSingleton<InteractionService>();
                     services.AddScoped<ScryfallManagerService>();
                     services.AddSingleton<MtgCardOutputManager>();
+                    services.AddScoped<WizardsEventLocatorManager>();
+                    services.AddScoped<GeoLocationApiManager>();
                     services.AddMemoryCache();
                 })
                 .ConfigureLogging(logging =>
