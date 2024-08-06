@@ -19,5 +19,5 @@ networks:
     external: true
 secrets:
   access_keys:
-    file: ./access-keys.txt
+    file: access-keys.txt
   
