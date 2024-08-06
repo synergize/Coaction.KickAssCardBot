@@ -14,7 +14,7 @@ jobs:
       - name: Make Environment File
         uses: synergize-org/create-envfile@v1.3
         with:
-          file_name: buildchecks/access-keys.env
+          file_name: buildchecks/access-keys.txt
           fail_on_empty: true     
       - name: Build MTG Bot
         run: docker compose build
