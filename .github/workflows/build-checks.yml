@@ -10,7 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: buildchecks     
+          path: buildchecks
+      - name: Make Environment File
+        uses: synergize-org/create-envfile@v1.3
+        with:
+          file_name: buildchecks/access-keys.env
+          fail_on_empty: true     
       - name: Build MTG Bot
         run: docker compose build
         working-directory: buildchecks
