@@ -3,7 +3,7 @@ services:
     container_name: kickassmtgbot_di
     build: 
         context: .
-        dockerfile: docker/kickassmtg/Dockerfile
+        dockerfile: Dockerfile
     image: kickassmtgdiscordbot
     restart: always
     volumes:
