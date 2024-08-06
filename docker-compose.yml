@@ -1,6 +1,6 @@
 services:
   kickassmtgbot:
-    container_name: kickassmtgbot
+    container_name: kickassmtgbot_di
     build: 
         context: .
         dockerfile: docker/kickassmtg/Dockerfile
