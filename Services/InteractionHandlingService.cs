@@ -28,7 +28,6 @@ namespace Coaction.KickAssCardBot.Services
             _logger = logger;
 
             _client.Ready += ClientOnReadyAsync;
-            _client.InteractionCreated += HandleInteractionAsync;
         }
 
         public async Task InitializeAsync()
