@@ -32,7 +32,7 @@ public class BotService : IHostedService
             Console.WriteLine($"- {guild.Name}");
         }
 
-        _client.SetGameAsync(Environment.GetEnvironmentVariable("DISCORD_BOT_ACTIVITY") ?? "Monitoring GTA Server(s).",
+        _client.SetGameAsync(Environment.GetEnvironmentVariable("DISCORD_BOT_ACTIVITY_MTGBOT") ?? "Doing Card Shenanigans.",
             type: ActivityType.CustomStatus);
         
         Console.WriteLine($"Activity set to '{_client.Activity.Name}'");
