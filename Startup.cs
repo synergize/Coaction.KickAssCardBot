@@ -1,4 +1,5 @@
-﻿using Coaction.KickAssCardBot.Manager;
+﻿using Coaction.KickAssCardBot.Embed_Output;
+using Coaction.KickAssCardBot.Manager;
 using Coaction.KickAssCardBot.Services;
 using Discord;
 using Discord.Commands;
@@ -34,11 +35,12 @@ namespace Coaction.KickAssCardBot
                         MessageCacheSize = 100
                     }));
                     services.AddHostedService<BotService>();
-                    services.AddScoped<CommandHandlingService>();
-                    services.AddScoped<InteractionHandlingService>();
+                    services.AddSingleton<CommandHandlingService>();
+                    services.AddSingleton<InteractionHandlingService>();
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
-                    services.AddSingleton<ScryfallManagerService>();
+                    services.AddScoped<ScryfallManagerService>();
+                    services.AddSingleton<MtgCardOutputManager>();
                     services.AddMemoryCache();
                 })
                 .ConfigureLogging(logging =>

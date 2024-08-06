@@ -18,8 +18,10 @@ public class CommandHandlingService
     private readonly IServiceProvider _services;
     private readonly ILogger<CommandHandlingService> _logger;
     private readonly ScryfallManagerService _scryfallManagerService;
+    private readonly MtgCardOutputManager _mtgCardOutputManager;
 
-    public CommandHandlingService(ILogger<CommandHandlingService> logger, DiscordSocketClient client, IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService)
+
+    public CommandHandlingService(ILogger<CommandHandlingService> logger, DiscordSocketClient client, IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager)
     {
         _logger = logger;
         _commands = new CommandService(new CommandServiceConfig()
@@ -30,6 +32,7 @@ public class CommandHandlingService
         });
         _services = serviceProvider;
         _scryfallManagerService = scryfallManagerService;
+        _mtgCardOutputManager = mtgCardOutputManager;
         _client = client;
 
         _commands.CommandExecuted += CommandExecutedAsync;
@@ -125,17 +128,15 @@ public class CommandHandlingService
                         var cardData = await _scryfallManagerService.PullScryfallData(entryString);
                         var rulingData = await _scryfallManagerService.PullScryFallRuleData(cardData.Id);
                         var firstRule = rulingData.Rules.FirstOrDefault();
-                        var output = MtgCardOutputManager.RulingOutput(rulingData, cardData, firstRule);
                         var buttons =  ButtonComponentHelper.BuildRuleButtons(rulingData, firstRule, cardData.Id);
-                        messages.Add((output, buttons));
+                        messages.Add((_mtgCardOutputManager.CardOutput(cardData), buttons));
                     }
                     else if (entryString != null)
                     {
                         var cardData = await _scryfallManagerService.PullScryfallData(entryString);
-                        var embedBuilder = cardData?.GetCardDataAsEmbed();
                         var scryFallSetData = await _scryfallManagerService.PullScryfallSetData(cardData?.PrintsSearchUri);
                         var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardData, selectItems: scryFallSetData?.BuildPrintingSelectMenu());
-                        messages.Add((embedBuilder, purchaseCardButtons));
+                        messages.Add((_mtgCardOutputManager.CardOutput(cardData), purchaseCardButtons));
                     }
                 }
 
@@ -176,8 +177,8 @@ public class CommandHandlingService
             }
             catch (Exception msg)
             {
-                Logger.Log.Error(msg, $"Could not find card name in brackets due to {msg.Message}");
-                await context.Message.ReplyAsync("", false, MtgCardOutputManager.DetermineFailure(3).Build());
+                _logger.LogError(msg, $"Could not find card name in brackets due to {msg.Message}");
+                await context.Message.ReplyAsync("", false, _mtgCardOutputManager.DetermineFailure(3).Build());
             }
         }
     }

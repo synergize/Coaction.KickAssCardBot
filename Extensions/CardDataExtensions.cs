@@ -1,5 +1,4 @@
-﻿using Coaction.KickAssCardBot.Embed_Output;
-using Coaction.KickAssCardBot.Enums;
+﻿using Coaction.KickAssCardBot.Enums;
 using Coaction.KickAssCardBot.Models.Scryfall;
 using Discord;
 
@@ -7,11 +6,6 @@ namespace Coaction.KickAssCardBot.Extensions
 {
     public static class CardDataExtensions
     {
-        public static EmbedBuilder GetCardDataAsEmbed(this ScryfallDataModel.CardData cardInfo)
-        {
-            return MtgCardOutputManager.CardOutput(cardInfo);
-        }
-
         /// <summary>
         /// Builds the select menu that's displayed under a card to provide different printings. Only takes the first 25 due to discord embed limitations.
         /// </summary>

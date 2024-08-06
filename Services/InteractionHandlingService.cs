@@ -17,14 +17,17 @@ namespace Coaction.KickAssCardBot.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<InteractionHandlingService> _logger;
         private readonly ScryfallManagerService _scryfallManagerService;
+        private readonly MtgCardOutputManager _mtgCardOutputManager;
+
 
         public InteractionHandlingService(ILogger<InteractionHandlingService> logger, DiscordSocketClient client, InteractionService interactionService,
-            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService)
+            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager)
         {
             _client = client;
             _interactionService = interactionService;
             _serviceProvider = serviceProvider;
             _scryfallManagerService = scryfallManagerService;
+            _mtgCardOutputManager = mtgCardOutputManager;
             _logger = logger;
 
             _client.Ready += ClientOnReadyAsync;
@@ -70,7 +73,7 @@ namespace Coaction.KickAssCardBot.Services
                 var cardId = arg.Data.CustomId.Replace("cardset-", "");
                 var cardInfo = await _scryfallManagerService.PullScryfallData(cardId, arg.Data.Values.FirstOrDefault());
                 var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardInfo, false);
-                await arg.RespondAsync(embed: cardInfo.GetCardDataAsEmbed().Build(), components: purchaseCardButtons.Build(), ephemeral: true);
+                await arg.RespondAsync(embed: _mtgCardOutputManager.CardOutput(cardInfo).Build(), components: purchaseCardButtons.Build(), ephemeral: true);
             }
 
             if (arg.Data.CustomId.Contains("didyoumean-"))
@@ -84,7 +87,7 @@ namespace Coaction.KickAssCardBot.Services
                     await arg.UpdateAsync(properties =>
                     {
                         properties.Components = purchaseCardButtons.Build();
-                        properties.Embed = cardInfo.GetCardDataAsEmbed().Build();
+                        properties.Embed = _mtgCardOutputManager.CardOutput(cardInfo).Build();
                     });
                 }
                 else
@@ -141,7 +144,7 @@ namespace Coaction.KickAssCardBot.Services
                 var cardData = await _scryfallManagerService.PullScryfallData(guidFromComponent);
                 var cardRules = await _scryfallManagerService.PullScryFallRuleData(guidFromComponent);
                 var firstRule = cardRules.Rules.FirstOrDefault();
-                await component.RespondAsync(embed: MtgCardOutputManager.RulingOutput(cardRules, cardData, firstRule).Build(), components: ButtonComponentHelper.BuildRuleButtons(cardRules, firstRule, cardData.Id).Build(), ephemeral: true);
+                await component.RespondAsync(embed: _mtgCardOutputManager.RulingOutput(cardRules, cardData, firstRule).Build(), components: ButtonComponentHelper.BuildRuleButtons(cardRules, firstRule, cardData.Id).Build(), ephemeral: true);
             }
 
             // Logic setup to handle the pagination of Rules when "Next" or "Previous" buttons are pressed on a ruling output.
@@ -156,7 +159,7 @@ namespace Coaction.KickAssCardBot.Services
                     var cardData = await _scryfallManagerService.PullScryfallData(oracleId);
                     if (customId.Contains("CardRule-Send-"))
                     {
-                        await component.RespondAsync(embed: MtgCardOutputManager.RulingOutput(rules, cardData, rules.Rules[parsedIndex]).Build());
+                        await component.RespondAsync(embed: _mtgCardOutputManager.RulingOutput(rules, cardData, rules.Rules[parsedIndex]).Build());
                         return Task.CompletedTask;
                     }
                     ScryFallCardRulingsModel.Rule rule = null;
@@ -172,7 +175,7 @@ namespace Coaction.KickAssCardBot.Services
                     }
 
                     await component.RespondAsync(
-                        embed: MtgCardOutputManager.RulingOutput(rules, cardData, rule).Build(),
+                        embed: _mtgCardOutputManager.RulingOutput(rules, cardData, rule).Build(),
                         components: ButtonComponentHelper.BuildRuleButtons(rules, rule, cardData.Id).Build(), ephemeral: true);
 
                     return Task.CompletedTask;
@@ -184,7 +187,7 @@ namespace Coaction.KickAssCardBot.Services
 
                 var guidFromComponent = Guid.Parse(customId.Replace("legalities-", ""));
                 var cardData = await _scryfallManagerService.PullScryfallData(guidFromComponent);
-                await component.RespondAsync(embed: MtgCardOutputManager.LegalitiesOutput(cardData).Build(), ephemeral: true);
+                await component.RespondAsync(embed: _mtgCardOutputManager.LegalitiesOutput(cardData).Build(), ephemeral: true);
             }
 
             return Task.CompletedTask;

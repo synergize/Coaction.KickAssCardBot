@@ -10,24 +10,21 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
     public class CardLookupSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly ScryfallManagerService _scryfallManager;
+        private readonly MtgCardOutputManager _mtgCardOutputManager;
 
-        public CardLookupSlashCommands(ScryfallManagerService scryfallManager)
+        public CardLookupSlashCommands(ScryfallManagerService scryfallManager, MtgCardOutputManager mtgCardOutputManager)
         {
             _scryfallManager = scryfallManager;
+            _mtgCardOutputManager = mtgCardOutputManager;
         }
 
         [SlashCommand("card-lookup", "Uses Scryfall to lookup information about provided card name")]
         public async Task CardLookup(string cardName)
         {
             var cardData = await _scryfallManager.PullScryfallData(cardName);
-            var embedBuilder = cardData?.GetCardDataAsEmbed();
             var scryFallSetData = await _scryfallManager.PullScryfallSetData(cardData?.PrintsSearchUri);
             var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardData, selectItems: scryFallSetData?.BuildPrintingSelectMenu());
-
-            if (embedBuilder.Length > 0)
-            {
-                await Context.Interaction.RespondAsync(embed: embedBuilder.Build(), components: purchaseCardButtons.Build());
-            }
+            await Context.Interaction.RespondAsync(embed: _mtgCardOutputManager.CardOutput(cardData).Build(), components: purchaseCardButtons.Build());
         }
 
         [SlashCommand("card-rules", "Uses Scryfall to lookup rules about provided card name")]
@@ -36,7 +33,7 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
             var cardData = await _scryfallManager.PullScryfallData(cardName);
             var rulingData = await _scryfallManager.PullScryFallRuleData(cardData.Id);
             var firstRule = rulingData.Rules.FirstOrDefault();
-            var embedBuilder = MtgCardOutputManager.RulingOutput(rulingData, cardData, firstRule);
+            var embedBuilder = _mtgCardOutputManager.RulingOutput(rulingData, cardData, firstRule);
             var purchaseCardButtons = ButtonComponentHelper.BuildRuleButtons(rulingData, firstRule, cardData.Id);
 
             if (embedBuilder.Length > 0)
@@ -48,7 +45,7 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
         [Command("random")]
         public async Task MTGRandomCards(bool isCommander = true)
         {
-            var embed = MtgCardOutputManager.CardOutput(await _scryfallManager.PullScryFallRandomCard(isCommander));
+            var embed = _mtgCardOutputManager.CardOutput(await _scryfallManager.PullScryFallRandomCard(isCommander));
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
     }

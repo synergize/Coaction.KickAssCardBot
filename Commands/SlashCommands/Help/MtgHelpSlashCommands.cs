@@ -6,18 +6,23 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands.Help
 {
     public class MtgHelpSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
+        private readonly MtgCardOutputManager _mtgCardOutputManager;
+
+        public MtgHelpSlashCommands(MtgCardOutputManager mtgCardOutputManager)
+        {
+            _mtgCardOutputManager = mtgCardOutputManager;
+        }
+
         [UserCommand("help")]
         public async Task MtgHelpSlashCommand(IUser user)
         {
-            var help = new MtgCardOutputManager();
-            await Context.Interaction.RespondAsync("", embed: help.GettingHelp().Build(), ephemeral: true);
+            await Context.Interaction.RespondAsync("", embed: _mtgCardOutputManager.GettingHelp().Build(), ephemeral: true);
         }
 
         [SlashCommand("help", "Details about what this bot can do!")]
         public async Task MtgHelpSlashCommand()
         {
-            var help = new MtgCardOutputManager();
-            await Context.Interaction.RespondAsync("", embed: help.GettingHelp().Build(), ephemeral: true);
+            await Context.Interaction.RespondAsync("", embed: _mtgCardOutputManager.GettingHelp().Build(), ephemeral: true);
         }
     }
 }
