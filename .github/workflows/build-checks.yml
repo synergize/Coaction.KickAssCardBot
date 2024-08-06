@@ -1,0 +1,16 @@
+name: Build Checks
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: buildchecks      
+      - name: Build MTG Bot
+        run: docker compose build
+        working-directory: buildchecks
