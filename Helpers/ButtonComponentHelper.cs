@@ -1,6 +1,4 @@
-﻿using Coaction.KickAssCardBot.Enums;
-using Coaction.KickAssCardBot.Helpers.Scryfall;
-using Coaction.KickAssCardBot.Models.Scryfall;
+﻿using Coaction.KickAssCardBot.Models.Scryfall;
 using Discord;
 using ScryfallDataModel = Coaction.KickAssCardBot.Models.Scryfall.ScryfallDataModel;
 
@@ -79,24 +77,6 @@ namespace Coaction.KickAssCardBot.Helpers
             }
 
             return component;
-        }
-
-        /// <summary>
-        /// Builds the select menu that's displayed under a card to provide different printings. Only takes the first 25 due to discord embed limitations.
-        /// </summary>
-        /// <param name="printSearchUri"></param>
-        /// <param name="gameType"></param>
-        /// <returns></returns>
-        public static async Task<List<SelectMenuOptionBuilder>> BuildPrintingSelectMenu(string printSearchUri, GameType gameType = GameType.Paper)
-        {
-            var prints = await GetScryFallData.PullScryfallSetData(printSearchUri);
-            var selectOptions = prints
-                .FilterOnlyPrintsWithPricingData()
-                .FilterByGameType(gameType)
-                .RemoveDuplicates()
-                .CardData;
-
-            return selectOptions.Take(25).Select(print => new SelectMenuOptionBuilder { Label = print.SetName, Value = print.Set }).ToList();
         }
     }
 }

@@ -44,5 +44,10 @@ namespace Coaction.KickAssCardBot.Extensions
         {
             return String.Concat(Enumerable.Repeat(characterName, multiplyNumber));
         }
+
+        public static double ConvertToMiles(this double value)
+        {
+            return value / 1609.344;
+        }
     }
 }

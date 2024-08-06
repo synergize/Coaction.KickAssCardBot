@@ -1,0 +1,23 @@
+services:
+  kickassmtgbot:
+    container_name: kickassmtgbot_di
+    build: 
+        context: .
+        dockerfile: Dockerfile
+    image: kickassmtgdiscordbot
+    restart: always
+    volumes:
+      - /home/discordbotdata/kickassmtg/Data:/app/Data
+    networks:
+      - ravendb-compose_ravendb_net
+    secrets:
+      - access_keys
+volumes:
+  kickassmtgbot:
+networks: 
+  ravendb-compose_ravendb_net:
+    external: true
+secrets:
+  access_keys:
+    file: ./access-keys.txt
+  

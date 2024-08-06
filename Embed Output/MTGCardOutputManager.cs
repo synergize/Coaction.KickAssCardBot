@@ -2,6 +2,7 @@
 using Coaction.KickAssCardBot.Extensions;
 using Coaction.KickAssCardBot.Helpers;
 using Discord;
+using Microsoft.Extensions.Logging;
 using MtgEmoji = Coaction.KickAssCardBot.Models.Scryfall.MtgEmoji;
 using ScryFallAutoCompleteModel = Coaction.KickAssCardBot.Models.Scryfall.ScryFallAutoCompleteModel;
 using ScryFallCardRulingsModel = Coaction.KickAssCardBot.Models.Scryfall.ScryFallCardRulingsModel;
@@ -9,14 +10,20 @@ using ScryfallDataModel = Coaction.KickAssCardBot.Models.Scryfall.ScryfallDataMo
 
 namespace Coaction.KickAssCardBot.Embed_Output
 {
-    internal class MtgCardOutputManager
+    public class MtgCardOutputManager
     {
-        private static readonly Color SuccessfulColor = Color.DarkGreen;
+        private readonly Color SuccessfulColor = Color.DarkGreen;
         private const int FailedColor = 16580608;
+        private readonly ILogger<MtgCardOutputManager> _logger;
 
-        public static async Task<EmbedBuilder> CardOutput(ScryfallDataModel.CardData pulledCard)
+        public MtgCardOutputManager(ILogger<MtgCardOutputManager> logger)
         {
-            Logger.Log.Info($"Successfully acquired {pulledCard.Name}. Generating output embed.");
+            _logger = logger;
+        }
+
+        public EmbedBuilder CardOutput(ScryfallDataModel.CardData pulledCard)
+        {
+            _logger.LogInformation($"Successfully acquired {pulledCard.Name}. Generating output embed.");
             var card = new EmbedBuilder();
             var footer = "";
             string title;
@@ -112,9 +119,9 @@ namespace Coaction.KickAssCardBot.Embed_Output
             return card;
         }
 
-        private static ScryfallDataModel.CardData AddEmojis(ScryfallDataModel.CardData cardData)
+        private ScryfallDataModel.CardData AddEmojis(ScryfallDataModel.CardData cardData)
         {
-            Logger.Log.Info("Adding Emojis");
+            _logger.LogInformation("Adding Emojis");
             var emojiObjectData = EmojiHelper.GetSavedDiscordEmojis();
 
             switch (cardData.Layout)
@@ -137,7 +144,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
             return cardData;
         }
 
-        private static string AddEmojisToText(MtgEmoji emojiObjectData, string oracleText)
+        private string AddEmojisToText(MtgEmoji emojiObjectData, string oracleText)
         {
             var rx = new Regex(@"\{(.*?)\}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var symbols = rx.Matches(oracleText);
@@ -170,11 +177,11 @@ namespace Coaction.KickAssCardBot.Embed_Output
                 }
             }
 
-            Logger.Log.Info($"Setting Text To: {oracleText}");
+            _logger.LogInformation($"Setting Text To: {oracleText}");
             return oracleText;
         }
 
-        public static EmbedBuilder RulingOutput(ScryFallCardRulingsModel rulings, ScryfallDataModel.CardData cardData, ScryFallCardRulingsModel.Rule targetRule)
+        public EmbedBuilder RulingOutput(ScryFallCardRulingsModel rulings, ScryfallDataModel.CardData cardData, ScryFallCardRulingsModel.Rule targetRule)
         {
             var rulingEmbed = new EmbedBuilder();
             rulingEmbed.WithColor(SuccessfulColor);
@@ -201,7 +208,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
             return rulingEmbed;
         }
 
-        public static EmbedBuilder LegalitiesOutput(ScryfallDataModel.CardData cardData)
+        public EmbedBuilder LegalitiesOutput(ScryfallDataModel.CardData cardData)
         {
             var embed = new EmbedBuilder();
             embed.WithColor(SuccessfulColor);
@@ -217,7 +224,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
             return embed;
         }
 
-        private static EmbedBuilder ApiSpellFailure(ScryFallAutoCompleteModel entry, string nameGiven)
+        private EmbedBuilder ApiSpellFailure(ScryFallAutoCompleteModel entry, string nameGiven)
         {
             var mtgFailure = new EmbedBuilder();
             mtgFailure.WithColor(FailedColor);
@@ -231,23 +238,23 @@ namespace Coaction.KickAssCardBot.Embed_Output
 
         private EmbedBuilder ApiMultipleEntryFailure()
         {
-            var mtgFailure = new EmbedBuilder {Title = "Card Lookup Failed."};
+            var mtgFailure = new EmbedBuilder { Title = "Card Lookup Failed." };
             mtgFailure.WithColor(FailedColor);
             mtgFailure.AddField("Too many card look ups: ", "Please make sure to only link to one card per message.", true);
 
             return mtgFailure;
         }
 
-        private static EmbedBuilder GenericError()
+        private EmbedBuilder GenericError()
         {
-            var mtgFailure = new EmbedBuilder {Title = "Card Lookup Failed."};
+            var mtgFailure = new EmbedBuilder { Title = "Card Lookup Failed." };
             mtgFailure.WithColor(FailedColor);
             mtgFailure.AddField("Whoopsies! ", "I'm not sure what exploded, but something did. Please contact my owner.", true);
 
             return mtgFailure;
         }
 
-        public static EmbedBuilder DetermineFailure(int num, ScryFallAutoCompleteModel entry = null, string entryValue = null)
+        public EmbedBuilder DetermineFailure(int num, ScryFallAutoCompleteModel entry = null, string entryValue = null)
         {
             switch (num)
             {
@@ -268,7 +275,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
             helping.AddField("Card Lookup: ", "Cards can be located with double open and closing brackets [[like this]]. They can be anywhere in your sentence!");
             helping.AddField("Rules Lookup:", "Rulings of cards can be acquired with double open brackets followed by a question mark and closing brackets. Example: [[?Tarmogoyf]].");
             //helping.AddField("Movers and Shakers:", "This bot has the ability to scrape the Mover and Shaker data from MTGGoldFish. Type mtg!setchannel #<channel name> to get started! [Currently Not Working]");
-            helping.AddField("Dice Roller:",  "Triggered by doing mtg!roll <numberOfDice>d<numberOfSides> Example: mtg!roll 1d20.");
+            helping.AddField("Dice Roller:", "Triggered by doing mtg!roll <numberOfDice>d<numberOfSides> Example: mtg!roll 1d20.");
             helping.AddField("Slash Commands:", "A number of slash commands have been added to make looking up information easier. You can type / in chat to see what commands by the bot are available.");
             helping.WithFooter("Powered By Scryfall API. Contact Coaction#5994 for suggestions or bugs");
             helping.WithColor(SuccessfulColor);

@@ -1,0 +1,26 @@
+name: Deploy Discord Bot and Services
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Make Environment File
+        uses: synergize-org/create-envfile@v1.3
+        with:
+          envkey_DropBox_ApiKey: ${{ secrets.DropBox_ApiKey }}
+          envkey_DropBox_Secret: ${{ secrets.DropBox_Secret }}
+          envkey_DropBox_Key: ${{ secrets.DropBox_Key }}
+          envkey_KickAssCardBot_ApiKey: ${{ secrets.KickAssCardBot_ApiKey }}
+          envkey_Rabbit_Password: ${{ secrets.Rabbit_Password }}
+          envkey_Rabbit_Username: ${{ secrets.Rabbit_Username }}
+          envkey_GOOGLE_MAPS_API_MTG: ${{ secrets.GOOGLE_MAPS_API_MTG }}
+          file_name: access-keys.txt
+          fail_on_empty: true
+
+      - name: Deploy MTG Bot
+        run: docker compose up -d --build

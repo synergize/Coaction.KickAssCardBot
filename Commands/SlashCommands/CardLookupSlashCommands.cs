@@ -1,20 +1,40 @@
 ﻿using Coaction.KickAssCardBot.Embed_Output;
+using Coaction.KickAssCardBot.Extensions;
 using Coaction.KickAssCardBot.Helpers;
-using Coaction.KickAssCardBot.Helpers.Scryfall;
-using Coaction.KickAssCardBot.User_Message_Handler;
+using Coaction.KickAssCardBot.Manager;
+using Discord.Commands;
 using Discord.Interactions;
 
 namespace Coaction.KickAssCardBot.Commands.SlashCommands
 {
     public class CardLookupSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
+        private readonly ScryfallManagerService _scryfallManager;
+        private readonly MtgCardOutputManager _mtgCardOutputManager;
+
+        public CardLookupSlashCommands(ScryfallManagerService scryfallManager, MtgCardOutputManager mtgCardOutputManager)
+        {
+            _scryfallManager = scryfallManager;
+            _mtgCardOutputManager = mtgCardOutputManager;
+        }
+
         [SlashCommand("card-lookup", "Uses Scryfall to lookup information about provided card name")]
         public async Task CardLookup(string cardName)
         {
-            var cardData = await GetScryFallData.PullScryfallData(cardName);
-            var embedBuilder = await UserMessageController.GetCardDataAsEmbed(cardName, cardData);
-            var optionBuilder = await ButtonComponentHelper.BuildPrintingSelectMenu(cardData.PrintsSearchUri);
-            var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardData, selectItems: optionBuilder);
+            var cardData = await _scryfallManager.PullScryfallData(cardName);
+            var scryFallSetData = await _scryfallManager.PullScryfallSetData(cardData?.PrintsSearchUri);
+            var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardData, selectItems: scryFallSetData?.BuildPrintingSelectMenu());
+            await Context.Interaction.RespondAsync(embed: _mtgCardOutputManager.CardOutput(cardData).Build(), components: purchaseCardButtons.Build());
+        }
+
+        [SlashCommand("card-rules", "Uses Scryfall to lookup rules about provided card name")]
+        public async Task RulesLookup(string cardName)
+        {
+            var cardData = await _scryfallManager.PullScryfallData(cardName);
+            var rulingData = await _scryfallManager.PullScryFallRuleData(cardData.Id);
+            var firstRule = rulingData.Rules.FirstOrDefault();
+            var embedBuilder = _mtgCardOutputManager.RulingOutput(rulingData, cardData, firstRule);
+            var purchaseCardButtons = ButtonComponentHelper.BuildRuleButtons(rulingData, firstRule, cardData.Id);
 
             if (embedBuilder.Length > 0)
             {
@@ -22,19 +42,11 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
             }
         }
 
-        [SlashCommand("card-rules", "Uses Scryfall to lookup rules about provided card name")]
-        public async Task RulesLookup(string cardName)
+        [Command("random")]
+        public async Task MTGRandomCards(bool isCommander = true)
         {
-            var cardData = await GetScryFallData.PullScryfallData(cardName);
-            var rulingData = await GetScryFallData.PullScryFallRuleData(cardData.Id);
-            var firstRule = rulingData.Rules.FirstOrDefault();
-            var embedBuilder = MtgCardOutputManager.RulingOutput(rulingData, cardData, firstRule);
-            var purchaseCardButtons = ButtonComponentHelper.BuildRuleButtons(rulingData, firstRule, cardData.Id);
-
-            if (embedBuilder.Length > 0)
-            {
-                await Context.Interaction.RespondAsync(embed: embedBuilder.Build(), components: purchaseCardButtons.Build());
-            }
+            var embed = _mtgCardOutputManager.CardOutput(await _scryfallManager.PullScryFallRandomCard(isCommander));
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
     }
 }

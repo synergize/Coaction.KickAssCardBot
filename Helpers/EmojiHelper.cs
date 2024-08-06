@@ -20,7 +20,7 @@ namespace Coaction.KickAssCardBot.Helpers
             using var reader = new StreamReader(stream);
             var jsonFile = reader.ReadToEnd();
 
-            return JsonConvert.DeserializeObject<MtgEmoji>(jsonFile);
+            return JsonConvert.DeserializeObject<MtgEmoji>(jsonFile) ?? new MtgEmoji();
         }
     }
 }
