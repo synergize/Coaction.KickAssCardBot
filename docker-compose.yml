@@ -11,7 +11,8 @@ services:
     networks:
       - ravendb-compose_ravendb_net
     secrets:
-      - access-keys.txt
+      access_keys:
+       file: access-keys.txt
 volumes:
   kickassmtgbot:
 networks: 
