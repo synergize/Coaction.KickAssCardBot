@@ -10,12 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: buildchecks 
-      - name: Make Secrets File
-        uses: synergize-org/create-envfile@v1.3
-        with:
-          file_name: buildchecks/access-keys.text
-          fail_on_empty: true     
+          path: buildchecks     
       - name: Build MTG Bot
         run: docker compose build
         working-directory: buildchecks
