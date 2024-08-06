@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  kickassmtgbot:
+    container_name: kickassmtgbot
+    build: 
+        context: .
+        dockerfile: docker/kickassmtg/Dockerfile
+    image: kickassmtgdiscordbot
+    restart: always
+    volumes:
+      - /home/discordbotdata/kickassmtg/Data:/app/Data
+    networks:
+      - ravendb-compose_ravendb_net
+    secrets:
+      - access-keys.txt
+volumes:
+  kickassmtgbot:
+networks: 
+  ravendb-compose_ravendb_net:
+    external: true
+  

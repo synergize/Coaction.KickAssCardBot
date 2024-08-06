@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Coaction.KickAssCardBot": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "environmentVariables": {
+      }
+    }
+  }
+}
