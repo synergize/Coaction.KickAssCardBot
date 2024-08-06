@@ -10,14 +10,10 @@ services:
       - /home/discordbotdata/kickassmtg/Data:/app/Data
     networks:
       - ravendb-compose_ravendb_net
-    secrets:
-      - access_keys
+    env_file:
+      - access-keys.env
 volumes:
   kickassmtgbot:
 networks: 
   ravendb-compose_ravendb_net:
     external: true
-secrets:
-  access_keys:
-    file: access-keys.txt
-  

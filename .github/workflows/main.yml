@@ -19,7 +19,7 @@ jobs:
           envkey_Rabbit_Password: ${{ secrets.Rabbit_Password }}
           envkey_Rabbit_Username: ${{ secrets.Rabbit_Username }}
           envkey_GOOGLE_MAPS_API_MTG: ${{ secrets.GOOGLE_MAPS_API_MTG }}
-          file_name: access-keys.txt
+          file_name: access-keys.env
           fail_on_empty: true
 
       - name: Deploy MTG Bot
