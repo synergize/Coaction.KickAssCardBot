@@ -1,6 +1,4 @@
-﻿using System.Runtime.Caching;
-using System.Runtime.Caching.Hosting;
-using Coaction.KickAssCardBot.Manager;
+﻿using Coaction.KickAssCardBot.Manager;
 using Coaction.KickAssCardBot.Services;
 using Discord;
 using Discord.Commands;
@@ -13,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Coaction.KickAssCardBot
 {
-    public static class Program
+    public static class Startup
     {
         public static async Task Main(string[] args)
         {
