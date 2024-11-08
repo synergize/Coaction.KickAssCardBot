@@ -149,7 +149,11 @@ public class CommandHandlingService
                             {
                                 if (message.Channel is SocketTextChannel socketTextChannel)
                                 {
-                                    var thread = await socketTextChannel.CreateThreadAsync(string.Join("", message.Content.Take(100)), ThreadType.PublicThread, ThreadArchiveDuration.OneHour, message);
+                                    var expectedMessage = string.Join("", message.Content.Take(100));
+                                    expectedMessage = message.MentionedRoles.Aggregate(expectedMessage, (current, role) => current.Replace(role.Mention, role.Name));
+                                    expectedMessage = message.MentionedUsers.Aggregate(expectedMessage, (current, user) => current.Replace(user.Mention, user.GlobalName));
+
+                                    var thread = await socketTextChannel.CreateThreadAsync(expectedMessage, ThreadType.PublicThread, ThreadArchiveDuration.OneHour, message);
                                     foreach (var (embedBuilder, componentBuilder) in messages)
                                     {
                                         await thread.SendMessageAsync(embed: embedBuilder.Build(), components: componentBuilder.Build());
