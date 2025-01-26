@@ -51,7 +51,12 @@ namespace Coaction.KickAssCardBot.Embed_Output
             {
                 var displayName = deck.Team.Name ?? deck.Team.Players.FirstOrDefault()?.DisplayName;
                 var decklist = deck.Decklists.FirstOrDefault();
-                embedBuilder.AddField($"{displayName} ({deck.MatchWins}-{deck.MatchLosses}-{deck.MatchDraws})", $"[{decklist?.DecklistName}](https://melee.gg/Decklist/View/{decklist?.DecklistId})", true);
+                string fieldValue = "No Deck Data";
+                if (decklist != null)
+                {
+                    fieldValue = $"[{decklist?.DecklistName}](https://melee.gg/Decklist/View/{decklist?.DecklistId})";
+                }
+                embedBuilder.AddField($"{displayName} ({deck.MatchWins}-{deck.MatchLosses}-{deck.MatchDraws})", fieldValue, true);
             }
 
             return embedBuilder;
