@@ -45,6 +45,8 @@ namespace Coaction.KickAssCardBot
                     services.AddSingleton<MtgCardOutputManager>();
                     services.AddScoped<WizardsEventLocatorManager>();
                     services.AddScoped<GeoLocationApiManager>();
+                    services.AddScoped<HtmlAgilityManager>();
+                    services.AddScoped<MtgMeleeManager>();
                     services.AddMemoryCache();
                 })
                 .ConfigureLogging(logging =>

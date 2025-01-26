@@ -27,7 +27,7 @@ namespace Coaction.KickAssCardBot.Manager
                 DefaultValueHandling = DefaultValueHandling.Populate
             };
 
-            _httpClient = ScryfallFactory.GetSryfallHttpClient();
+            _httpClient = HttpClientFactory.GetValidHttpClient();
             _cacheEntryOptions = new MemoryCacheEntryOptions()
             {
                 SlidingExpiration = TimeSpan.FromDays(7)
