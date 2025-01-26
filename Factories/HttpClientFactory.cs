@@ -18,7 +18,10 @@
                 UseCookies = true,
                 CookieContainer = new System.Net.CookieContainer()
             };
-            var client = new HttpClient(handler);
+            var client = new HttpClient(handler)
+            {
+                BaseAddress = new Uri("https://melee.gg")
+            };
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0");
             client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
             client.DefaultRequestHeaders.Add("Connection", "keep-alive");

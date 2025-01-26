@@ -31,7 +31,8 @@ namespace Coaction.KickAssCardBot.Manager
                 return data;
             }
             var results = new Dictionary<string, TournamentResponse>();
-            var roundIds = await _htmlAgilityManager.GetAllRoundIds(tournamentId);
+            var roundIds = await _htmlAgilityManager.GetAllRoundIds(tournamentId);     
+            var tournamentDetails = await GetTournamentDetails(tournamentId);
             foreach (var roundId in roundIds) 
             {
                 var parsedResponse = await GetTournamentResponse(roundId.Value, 500);
@@ -57,6 +58,10 @@ namespace Coaction.KickAssCardBot.Manager
                         _logger.LogInformation($"{parsedResponse.Data.Count} out of {maximumResults} decks acquired.");
                     }
 
+                    parsedResponse.TournamentName = tournamentDetails?.Name;
+                    parsedResponse.PlayerCount = (int)tournamentDetails?.ParticipatorCount;
+                    parsedResponse.Status = tournamentDetails.Status;
+                    parsedResponse.StartDate = tournamentDetails.StartDate;
                     results[roundId.Key] = parsedResponse;
                 }
                 else {
@@ -72,9 +77,22 @@ namespace Coaction.KickAssCardBot.Manager
         {
             using var httpClient = HttpClientFactory.GetValidMtgMeleeClient();
             using var formDataRequest = BuildRoundStandingsRequest(roundId, standingsLength, standingsStart);
-            var request = await httpClient.PostAsync($"https://melee.gg/Standing/GetRoundStandings", formDataRequest);
+            var request = await httpClient.PostAsync($"/Standing/GetRoundStandings", formDataRequest);
             var responseRaw = await request.Content.ReadAsStringAsync();
             var parsedResponse = JsonConvert.DeserializeObject<TournamentResponse>(responseRaw, new JsonSerializerSettings()
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+            });
+
+            return parsedResponse;
+        }
+
+        private async Task<TournamentDetailsResponse> GetTournamentDetails(string tournamentId)
+        {
+            using var httpClient = HttpClientFactory.GetValidMtgMeleeClient();
+            var request = await httpClient.GetAsync($"/Tournament/GetTournamentDetails?id={tournamentId}");
+            var responseRaw = await request.Content.ReadAsStringAsync();
+            var parsedResponse = JsonConvert.DeserializeObject<TournamentDetailsResponse>(responseRaw, new JsonSerializerSettings()
             {
                 NullValueHandling = NullValueHandling.Ignore,
             });

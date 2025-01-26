@@ -13,7 +13,7 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands.TournamentCommands
             _mtgMeleeManager = mtgMeleeManager;
         }
 
-        [SlashCommand("tournament-lookup", "Uses melee.gg to acquire data on a specific tournament")]
+        [SlashCommand("decklist-count-lookup", "Uses melee.gg to acquire data on a specific tournament")]
         public async Task TournamentAggregator(string tournamentId)
         {
             try
@@ -29,6 +29,14 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands.TournamentCommands
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        [SlashCommand("top16-lookup", "Uses melee.gg to acquire the top 16 decklists from a tournmanet.")]
+        public async Task Top16Results(string tournamentId)
+        {
+            await Context.Interaction.RespondAsync($"Acquiring decklist data. This may take a while...");
+            var results = await _mtgMeleeManager.GetTournamentResults(tournamentId);
+            await Context.Channel.SendMessageAsync(embed: MtgMeleeOutput.OutputTop16Decklists(results).Build());
         }
     }
 }

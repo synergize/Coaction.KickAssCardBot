@@ -2,6 +2,10 @@
 {
     public class TournamentResponse
     {
+        public string TournamentName { get; set; }
+        public int PlayerCount { get; set; }
+        public string Status { get; set; }
+        public DateTime StartDate { get; set; }
         public long Draw { get; set; }
         public long RecordsTotal { get; set; }
         public long RecordsFiltered { get; set; }
