@@ -3,11 +3,11 @@ using Coaction.KickAssCardBot.Extensions;
 using Coaction.KickAssCardBot.Helpers;
 using Coaction.KickAssCardBot.Manager;
 using Coaction.KickAssCardBot.Models.Scryfall;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Discord;
 
 namespace Coaction.KickAssCardBot.Services
 {
@@ -20,10 +20,10 @@ namespace Coaction.KickAssCardBot.Services
         private readonly ScryfallManagerService _scryfallManagerService;
         private readonly MtgCardOutputManager _mtgCardOutputManager;
         private readonly WizardsEventLocatorManager _wizardsEventLocatorManager;
-
+        private readonly MtgMeleeManager _mtgMeleeManager;
 
         public InteractionHandlingService(ILogger<InteractionHandlingService> logger, DiscordSocketClient client, InteractionService interactionService,
-            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager, WizardsEventLocatorManager wizardsEventLocatorManager)
+            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager, WizardsEventLocatorManager wizardsEventLocatorManager, MtgMeleeManager mtgMeleeManager)
         {
             _client = client;
             _interactionService = interactionService;
@@ -32,6 +32,7 @@ namespace Coaction.KickAssCardBot.Services
             _mtgCardOutputManager = mtgCardOutputManager;
             _wizardsEventLocatorManager = wizardsEventLocatorManager;
             _logger = logger;
+            _mtgMeleeManager = mtgMeleeManager;
 
             _client.Ready += ClientOnReadyAsync;
         }
@@ -133,6 +134,26 @@ namespace Coaction.KickAssCardBot.Services
                 catch (Exception e)
                 {
                     _logger.LogError(e, $"Failed to find event details from selection menu due to {e.Message}");
+                    throw;
+                }
+            }
+
+            if (arg.Data.CustomId.Contains("mtgmelee-tournament-"))
+            {
+                try
+                {
+                    var splitValues = arg.Data.Values.FirstOrDefault()?.Split("-");
+                    var tournmanetId = splitValues?[1];
+                    var roundId = splitValues?[2];
+                    var roundData = await _mtgMeleeManager.GetTournamentResults(tournmanetId);
+                    var componentBuilder = new ComponentBuilder();
+                    componentBuilder.WithSelectMenu($"mtgmelee-tournament-{tournmanetId}", roundData.BuildRoundSelectionMenu());
+
+                    await arg.RespondAsync(embed: MtgMeleeOutput.OutputDecklistAggregator(roundData, roundId).Build(), components: componentBuilder.Build(), ephemeral: true);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Failed to select round for tournament due to {e.Message}");
                     throw;
                 }
             }
