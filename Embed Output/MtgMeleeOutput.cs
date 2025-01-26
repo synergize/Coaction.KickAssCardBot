@@ -27,7 +27,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
             embedBuilder.Color = Color.DarkOrange;
             embedBuilder.Title = $"{targetRound.TournamentName} - {roundName ?? tournamentResults.FirstOrDefault().Key}";
             embedBuilder.Description = $"Decklist aggregator. Collects all decklists by name and groups them. Capped at 25 different deck lists due to discord limitation. Sorts by most number of decks to get best data possible.";
-            var filteredByDecklist = targetRound.Data.GroupBy(x => x.Decklists.FirstOrDefault()?.DecklistName).OrderByDescending(x => x.Count()).Take(25);
+            var filteredByDecklist = targetRound.Data.Where(x => x.Decklists.Any()).GroupBy(x => x.Decklists?.FirstOrDefault()?.DecklistName).OrderByDescending(x => x.Count()).Take(25);
             foreach (var deck in filteredByDecklist)
             {
                 embedBuilder.AddField(deck.Key, deck.Count(), true);
@@ -51,7 +51,12 @@ namespace Coaction.KickAssCardBot.Embed_Output
             {
                 var displayName = deck.Team.Name ?? deck.Team.Players.FirstOrDefault()?.DisplayName;
                 var decklist = deck.Decklists.FirstOrDefault();
-                embedBuilder.AddField($"{displayName} ({deck.MatchWins}-{deck.MatchLosses}-{deck.MatchDraws})", $"[{decklist?.DecklistName}](https://melee.gg/Decklist/View/{decklist?.DecklistId})", true);
+                string fieldValue = "No Deck Data";
+                if (decklist != null)
+                {
+                    fieldValue = $"[{decklist?.DecklistName}](https://melee.gg/Decklist/View/{decklist?.DecklistId})";
+                }
+                embedBuilder.AddField($"{displayName} ({deck.MatchWins}-{deck.MatchLosses}-{deck.MatchDraws})", fieldValue, true);
             }
 
             return embedBuilder;
