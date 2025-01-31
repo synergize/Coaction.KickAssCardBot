@@ -6,14 +6,14 @@ All card data is acquired via [Scryfall's](https://scryfall.com/) API.
 
 ## Available Commands
 
-### `/card-lookup <cardName>`
+### `/card-lookup <cardName> <setName>`
 
-**Description:** Acquires information on the specified card, including sets, price, artwork, author, legality, and rules.
+**Description:** Acquires information on the specified card, including sets, price, artwork, author, legality, and rules. Setname is optional. 
 
 **Usage:**
 
 ```
-/card-lookup Fireball
+/card-lookup Fireball lea
 ```
 
 ---
