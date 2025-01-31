@@ -6,6 +6,7 @@ using Coaction.KickAssCardBot.Models.Scryfall;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
@@ -21,10 +22,12 @@ namespace Coaction.KickAssCardBot.Services
         private readonly MtgCardOutputManager _mtgCardOutputManager;
         private readonly WizardsEventLocatorManager _wizardsEventLocatorManager;
         private readonly MtgMeleeManager _mtgMeleeManager;
+        private readonly IConfiguration _configuration;
 
         public InteractionHandlingService(ILogger<InteractionHandlingService> logger, DiscordSocketClient client, InteractionService interactionService,
-            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager, WizardsEventLocatorManager wizardsEventLocatorManager, MtgMeleeManager mtgMeleeManager)
+            IServiceProvider serviceProvider, ScryfallManagerService scryfallManagerService, MtgCardOutputManager mtgCardOutputManager, WizardsEventLocatorManager wizardsEventLocatorManager, MtgMeleeManager mtgMeleeManager, IConfiguration configurationManager)
         {
+            _configuration = configurationManager;
             _client = client;
             _interactionService = interactionService;
             _serviceProvider = serviceProvider;
@@ -42,19 +45,30 @@ namespace Coaction.KickAssCardBot.Services
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
         }
 
+        /// <summary>
+        /// Executes when discord bot is ready. The if check here is to ensure we don't see duplicate commands when the discord both is live. 
+        /// </summary>
+        /// <returns></returns>
         public async Task ClientOnReadyAsync()
         {
-            if (_client.Guilds.Count > 0)
+            #if DEBUG
+            _logger.LogDebug("Bot is in debug mode. Registering commands to test discord for immediate testability.");
+            var discordServerId = _configuration["TEST_DISCORD_SERVER_ID"];
+            if (!string.IsNullOrEmpty(discordServerId))
             {
-                foreach (var guild in _client.Guilds)
+                if (ulong.TryParse(discordServerId, out var parsedId))
                 {
-                    await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
+                    await _interactionService.RegisterCommandsToGuildAsync(parsedId);
+
                 }
-            }
-            else
-            {
-                await _interactionService.RegisterCommandsGloballyAsync();
-            }
+                else
+                {
+                    _logger.LogWarning($"Failed to obtain test server ID. Double check to make sure environment variable is configured.");
+                }
+            };
+            #else
+            await _interactionService.RegisterCommandsGloballyAsync();
+            #endif
         }
 
         public async Task HandleInteractionAsync(SocketInteraction arg)

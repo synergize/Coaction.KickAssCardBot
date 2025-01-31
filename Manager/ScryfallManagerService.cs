@@ -45,8 +45,18 @@ namespace Coaction.KickAssCardBot.Manager
                 return data;
             }
 
-            var callApi = await ExactScryFall(cardName, setName);
+            var callApi = await ExactScryFall(cardName);
             var result = JsonConvert.DeserializeObject<CardData>(callApi, _serializerSettings) ?? throw new Exception($"Failed to deserialize scryfall card data for {cardName} in set {setName}.");
+
+            if (!string.IsNullOrEmpty(setName))
+            {
+                var setData = await PullScryfallSetData(result.PrintsSearchUri);
+                if (setData.CardData.Any(x => x.Set == setName))
+                {
+                    result = setData.CardData.First(x => x.Set == setName);
+                }
+            }
+
             _memoryCache.Set(cacheKey, result, _cacheEntryOptions);
             return result;
         }
@@ -180,42 +190,40 @@ namespace Coaction.KickAssCardBot.Manager
             throw new Exception($"Failed to deserialize scryfall set data data for {urlFromInitial}");
         }
 
-        private async Task<string> FuzzyScryFall(string cardName, string setName = "")
+        private async Task<string> FuzzyScryFall(string cardName)
         {
             try
             {
-                var url = string.Format(string.IsNullOrEmpty(setName) ? $"https://api.scryfall.com/cards/named?fuzzy={cardName}&format=json" : $"https://api.scryfall.com/cards/named?fuzzy={cardName}&set={setName}&format=json");
+                var url = $"https://api.scryfall.com/cards/named?fuzzy={cardName}&format=json";
                 _logger.LogInformation($"Getting {url}");
                 return await _httpClient.GetStringAsync(url);
             }
             catch (Exception msg)
             {
                 _logger.LogError(msg, $"Fuzzy failed due to {msg.Message}");
-                throw new Exception($"Failed to obtain scryfall fuzzy data for {cardName} in set {setName}");
+                throw new Exception($"Failed to obtain scryfall fuzzy data for {cardName}");
             }
         }
 
-        private async Task<string> ExactScryFall(string cardName, string setName = "")
+        private async Task<string> ExactScryFall(string cardName)
         {
             try
             {
-                var url = string.Format(string.IsNullOrEmpty(setName)
-                    ? $"https://api.scryfall.com/cards/named?exact={cardName}&format=json"
-                    : $"https://api.scryfall.com/cards/named?exact={cardName}&set={setName}&format=json");
-                _logger.LogInformation($"Trying to get exact scryfall data for {cardName} via set {setName}. URL: {url}");
+                var url = $"https://api.scryfall.com/cards/named?exact={cardName}&format=json";
+                _logger.LogInformation($"Trying to get exact scryfall data for {cardName}. URL: {url}");
                 return await _httpClient.GetStringAsync(url);
             }
             catch (HttpRequestException exception)
             {
                 _logger.LogError("Failed to acquire card information via exact link. Attempting Fuzzy..", exception);
-                return await FuzzyScryFall(cardName, setName);
+                return await FuzzyScryFall(cardName);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, $"Uncaught exception due to {e.Message}");
             }
 
-            throw new Exception($"Failed to obtain scryfall data for {cardName} in set {setName}");
+            throw new Exception($"Failed to obtain scryfall data for {cardName}");
         }
 
         private Dictionary<string, string> SetLegalList(Legalities legalities)
