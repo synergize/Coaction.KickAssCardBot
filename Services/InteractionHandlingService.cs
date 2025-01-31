@@ -45,6 +45,10 @@ namespace Coaction.KickAssCardBot.Services
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
         }
 
+        /// <summary>
+        /// Executes when discord bot is ready. The if check here is to ensure we don't see duplicate commands when the discord both is live. 
+        /// </summary>
+        /// <returns></returns>
         public async Task ClientOnReadyAsync()
         {
             #if DEBUG

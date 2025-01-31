@@ -57,7 +57,14 @@ public class BotService : IHostedService
         await _commandHandlingService.InitializeAsync();
         await _interactionHandlingService.InitializeAsync();
 
-        var token = _configuration["KickAssCardBot_ApiKey"];
+        string token = string.Empty;
+        
+        #if DEBUG
+        token = _configuration["TEST_DISCORD_BOT"];
+        #else
+        token = _configuration["KickAssCardBot_ApiKey"];
+        #endif
+
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
     }
