@@ -18,7 +18,7 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
             _mtgCardOutputManager = mtgCardOutputManager;
         }
 
-        [SlashCommand("card-lookup", "Uses Scryfall to lookup information about provided card name. Setname can be provided using the three symbol. Example: Time Spiral Remastered is tsr.")]
+        [SlashCommand("card-lookup", "Uses Scryfall to lookup information about provided card name. Setname Example: tsr")]
         public async Task CardLookup(string cardName, string setName = "")
         {
             var cardData = await _scryfallManager.PullScryfallData(cardName, setName);
