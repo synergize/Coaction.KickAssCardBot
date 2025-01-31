@@ -51,9 +51,9 @@ namespace Coaction.KickAssCardBot.Manager
             if (!string.IsNullOrEmpty(setName))
             {
                 var setData = await PullScryfallSetData(result.PrintsSearchUri);
-                if (setData.CardData.Any(x => x.Set == setName))
+                if (setData.CardData.Any(x => x.Set == setName.ToLower()))
                 {
-                    result = setData.CardData.First(x => x.Set == setName);
+                    result = setData.CardData.First(x => x.Set == setName.ToLower());
                 }
             }
 
