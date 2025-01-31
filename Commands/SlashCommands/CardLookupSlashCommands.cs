@@ -18,10 +18,10 @@ namespace Coaction.KickAssCardBot.Commands.SlashCommands
             _mtgCardOutputManager = mtgCardOutputManager;
         }
 
-        [SlashCommand("card-lookup", "Uses Scryfall to lookup information about provided card name")]
-        public async Task CardLookup(string cardName)
+        [SlashCommand("card-lookup", "Uses Scryfall to lookup information about provided card name. Setname can be provided using the three symbol. Example: Time Spiral Remastered is tsr.")]
+        public async Task CardLookup(string cardName, string setName = "")
         {
-            var cardData = await _scryfallManager.PullScryfallData(cardName);
+            var cardData = await _scryfallManager.PullScryfallData(cardName, setName);
             var scryFallSetData = await _scryfallManager.PullScryfallSetData(cardData?.PrintsSearchUri);
             var purchaseCardButtons = ButtonComponentHelper.BuildBuyButtons(cardData, selectItems: scryFallSetData?.BuildPrintingSelectMenu());
             await Context.Interaction.RespondAsync(embed: _mtgCardOutputManager.CardOutput(cardData).Build(), components: purchaseCardButtons.Build());
