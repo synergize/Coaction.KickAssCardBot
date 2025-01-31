@@ -1,5 +1,9 @@
 # Coaction KickAssCardBot - Command Reference
 
+## Card Data
+
+All card data is acquired via [Scryfall's](https://scryfall.com/) API.
+
 ## Available Commands
 
 ### `/card-lookup <cardName>`
