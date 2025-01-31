@@ -52,6 +52,7 @@ namespace Coaction.KickAssCardBot.Services
         public async Task ClientOnReadyAsync()
         {
             #if DEBUG
+            _logger.LogDebug("Bot is in debug mode. Registering commands to test discord for immediate testability.");
             var discordServerId = _configuration["TEST_DISCORD_SERVER_ID"];
             if (!string.IsNullOrEmpty(discordServerId))
             {
