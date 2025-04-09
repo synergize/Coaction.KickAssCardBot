@@ -156,7 +156,7 @@ public class CommandHandlingService
                                     var thread = await socketTextChannel.CreateThreadAsync(string.Join("", sanitizedMentions.Take(100)), ThreadType.PublicThread, ThreadArchiveDuration.OneHour, message);
                                     foreach (var (embedBuilder, componentBuilder) in messages)
                                     {
-                                        await thread.SendMessageAsync(embed: embedBuilder.Build(), components: componentBuilder.Build(), flags: MessageFlags.SuppressNotification);
+                                        await thread.SendMessageAsync(embed: embedBuilder.Build(), components: componentBuilder.Build());
                                     }
                                 }
 
