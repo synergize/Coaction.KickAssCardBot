@@ -117,6 +117,7 @@ public class CommandHandlingService
         {
             try
             {
+                Thread.Sleep(500);
                 var rx = new Regex(@"\[\[(.*?)\]\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var matches = rx.Matches(message.Content);
                 var messages = new List<(EmbedBuilder, ComponentBuilder)>();
