@@ -117,11 +117,10 @@ public class CommandHandlingService
         {
             try
             {
-                Thread.Sleep(500);
                 var rx = new Regex(@"\[\[(.*?)\]\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var matches = rx.Matches(message.Content);
                 var messages = new List<(EmbedBuilder, ComponentBuilder)>();
-                foreach (var entryName in matches)
+                foreach (var entryName in matches.DistinctBy(x => x.ToString()))
                 {
                     var entryString = entryName.ToString();
                     if (entryString != null && entryString.Contains("?"))
@@ -157,7 +156,7 @@ public class CommandHandlingService
                                     var thread = await socketTextChannel.CreateThreadAsync(string.Join("", sanitizedMentions.Take(100)), ThreadType.PublicThread, ThreadArchiveDuration.OneHour, message);
                                     foreach (var (embedBuilder, componentBuilder) in messages)
                                     {
-                                        await thread.SendMessageAsync(embed: embedBuilder.Build(), components: componentBuilder.Build());
+                                        await thread.SendMessageAsync(embed: embedBuilder.Build(), components: componentBuilder.Build(), flags: MessageFlags.SuppressNotification);
                                     }
                                 }
 
