@@ -32,7 +32,7 @@ namespace Coaction.KickAssCardBot.Models.Scryfall
 
         public ScryfallPrints RemoveDuplicates()
         {
-            CardData = CardData.Distinct().ToList();
+            CardData = CardData.DistinctBy(x => x.Name).ToList();
             return this;
         }
     }

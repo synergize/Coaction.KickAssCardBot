@@ -4,6 +4,7 @@ using Coaction.KickAssCardBot.Helpers;
 using Coaction.KickAssCardBot.Manager;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -156,6 +157,11 @@ public class CommandHandlingService
                                     var thread = await socketTextChannel.CreateThreadAsync(string.Join("", sanitizedMentions.Take(100)), ThreadType.PublicThread, ThreadArchiveDuration.OneHour, message);
                                     foreach (var (embedBuilder, componentBuilder) in messages)
                                     {
+                                        if (messages.Count > 5)
+                                        {
+                                            Thread.Sleep(500);
+                                        }
+                                        _logger.LogDebug(embedBuilder.ToJsonString());
                                         await thread.SendMessageAsync(embed: embedBuilder.Build(), components: componentBuilder.Build());
                                     }
                                 }
