@@ -40,6 +40,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
                 case "transform":
                 case "modal_dfc":
                 case "adventure":
+                case "prepare":
                     var firstCardFace = pulledCard.CardFaces[0];
                     var secondCardFace = pulledCard.CardFaces[1];
                     card.ThumbnailUrl = firstCardFace.image_uris?.Png ?? pulledCard.ImageUris?.Png ?? "none";
@@ -130,6 +131,7 @@ namespace Coaction.KickAssCardBot.Embed_Output
                 case "transform":
                 case "modal_dfc":
                 case "adventure":
+                case "prepare":
                     cardData.CardFaces[0].mana_cost = AddEmojisToText(emojiObjectData, cardData.CardFaces[0].mana_cost);
                     cardData.CardFaces[1].mana_cost = AddEmojisToText(emojiObjectData, cardData.CardFaces[1].mana_cost);
                     cardData.CardFaces[0].oracle_text = AddEmojisToText(emojiObjectData, cardData.CardFaces[0].oracle_text);
