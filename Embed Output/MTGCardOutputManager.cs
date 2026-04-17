@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Coaction.KickAssCardBot.Constants;
 using Coaction.KickAssCardBot.Extensions;
 using Coaction.KickAssCardBot.Helpers;
 using Discord;
@@ -36,11 +37,12 @@ namespace Coaction.KickAssCardBot.Embed_Output
                     card.ThumbnailUrl = pulledCard.ImageUris.Png ?? "none";
                     footer = string.IsNullOrEmpty(pulledCard.FlavorText) ? string.Empty : pulledCard.FlavorText;
                     break;
-                case "split":
-                case "transform":
-                case "modal_dfc":
-                case "adventure":
-                case "prepare":
+                case LayoutConstants.Split:
+                case LayoutConstants.Transform:
+                case LayoutConstants.ModalDfc:
+                case LayoutConstants.Adventure:
+                case LayoutConstants.Prepare:
+                case LayoutConstants.Flip:
                     var firstCardFace = pulledCard.CardFaces[0];
                     var secondCardFace = pulledCard.CardFaces[1];
                     card.ThumbnailUrl = firstCardFace.image_uris?.Png ?? pulledCard.ImageUris?.Png ?? "none";
@@ -127,11 +129,12 @@ namespace Coaction.KickAssCardBot.Embed_Output
 
             switch (cardData.Layout)
             {
-                case "split":
-                case "transform":
-                case "modal_dfc":
-                case "adventure":
-                case "prepare":
+                case LayoutConstants.Split:
+                case LayoutConstants.Transform:
+                case LayoutConstants.ModalDfc:
+                case LayoutConstants.Adventure:
+                case LayoutConstants.Prepare:
+                case LayoutConstants.Flip:
                     cardData.CardFaces[0].mana_cost = AddEmojisToText(emojiObjectData, cardData.CardFaces[0].mana_cost);
                     cardData.CardFaces[1].mana_cost = AddEmojisToText(emojiObjectData, cardData.CardFaces[1].mana_cost);
                     cardData.CardFaces[0].oracle_text = AddEmojisToText(emojiObjectData, cardData.CardFaces[0].oracle_text);
