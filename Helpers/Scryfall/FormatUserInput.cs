@@ -10,12 +10,9 @@
                 entry = entry.Remove(0, entry.Contains('?') ? 3 : 2);
                 var count = entry.Length - 2;
                 entry = entry.Remove(count, 2);
-                if (entry.Contains(" "))
-                {
-                    entry = entry.Replace(" ", "+");
-                }
             }
-            return entry;
+
+            return Uri.EscapeDataString(entry).Replace("%20", "+", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

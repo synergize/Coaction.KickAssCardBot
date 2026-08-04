@@ -61,7 +61,7 @@ public class BotService : IHostedService
 
         #if DEBUG
         _logger.LogDebug("Bot is in debug mode. Acquiring test token.");
-        token = _configuration["TEST_DISCORD_BOT"];
+        token = _configuration["TESTBOT_KEY"];
         #else
         token = _configuration["KickAssCardBot_ApiKey"];
         #endif
