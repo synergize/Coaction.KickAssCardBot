@@ -209,7 +209,6 @@ namespace Coaction.KickAssCardBot.Manager
         {
             try
             {
-                cardName = Uri.EscapeDataString(cardName);
                 var url = $"https://api.scryfall.com/cards/named?exact={cardName}&format=json";
                 _logger.LogInformation($"Trying to get exact scryfall data for {cardName}. URL: {url}");
                 return await _httpClient.GetStringAsync(url);
